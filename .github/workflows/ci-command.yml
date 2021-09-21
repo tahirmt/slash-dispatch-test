@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Help
-        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "help" }}
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'help' }}
         uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.BOT_TOKEN }}
@@ -20,7 +20,7 @@ jobs:
             > /ci automation # creates an automation build for the current branch
 
       - name: Device Build
-        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "device-build" }}
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'device-build' }}
         uses: scoremedia/workflow-dispatch@v1
         with:
           workflow: Device Build
@@ -29,7 +29,7 @@ jobs:
           ref: ${{ github.event.client_payload.pull_request.head.ref }}
 
       - name: Automation Build
-        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "automation" }}
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'automation' }}
         uses: scoremedia/workflow-dispatch@v1
         with:
           workflow: CI
