@@ -19,28 +19,28 @@ jobs:
             > /ci device-build # creates a device build for the current branch
             > /ci automation # creates an automation build for the current branch
 
-        - name: Device Build
-          if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "device-build" }}
-          uses: scoremedia/workflow-dispatch@v1
-          with:
-            workflow: Device Build
-            token: ${{ secrets.BOT_TOKEN }}
-            inputs: '{"branch":"${{ github.event.client_payload.pull_request.head.ref }}"}'
-            ref: ${{ github.event.client_payload.pull_request.head.ref }}
+      - name: Device Build
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "device-build" }}
+        uses: scoremedia/workflow-dispatch@v1
+        with:
+          workflow: Device Build
+          token: ${{ secrets.BOT_TOKEN }}
+          inputs: '{"branch":"${{ github.event.client_payload.pull_request.head.ref }}"}'
+          ref: ${{ github.event.client_payload.pull_request.head.ref }}
 
-        - name: Automation Build
-          if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "automation" }}
-          uses: scoremedia/workflow-dispatch@v1
-          with:
-            workflow: CI
-            token: ${{ secrets.BOT_TOKEN }}
-            inputs: '{"branch":"${{ github.event.client_payload.pull_request.head.ref }}","automation-build":"true"}'
-            ref: ${{ github.event.client_payload.pull_request.head.ref }}
+      - name: Automation Build
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == "automation" }}
+        uses: scoremedia/workflow-dispatch@v1
+        with:
+          workflow: CI
+          token: ${{ secrets.BOT_TOKEN }}
+          inputs: '{"branch":"${{ github.event.client_payload.pull_request.head.ref }}","automation-build":"true"}'
+          ref: ${{ github.event.client_payload.pull_request.head.ref }}
 
-        - name: Add reaction
-          uses: peter-evans/create-or-update-comment@v1
-          with:
-            token: ${{ secrets.BOT_TOKEN }}
-            repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-            comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
-            reaction-type: hooray
+      - name: Add reaction
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reaction-type: hooray
