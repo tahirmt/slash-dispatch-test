@@ -1,0 +1,31 @@
+name: Device Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to build'
+        required: false
+        default: ''
+      runner:
+        description: 'The runner to run on. Uses the default runner by default.'
+        required: false
+        default: ''
+  push:
+    branches:
+      - release-candidate
+      - release-candidate-* # e.g. release-candidate-21.1.1
+      - device/**
+
+  schedule:
+    - cron:  '0 5 * * 1-5' # runs at midnight EST mon-fri
+
+jobs:
+  device:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inputs
+        run: |
+          echo "ref $GITHUB_REF"
+          echo "branch ${{ github.event.inputs.branch }}"
+          echo "runner ${{ github.event.inputs.runner }}"

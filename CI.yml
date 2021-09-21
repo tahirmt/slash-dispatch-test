@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'The branch to build'
+        required: false
+        default: ''
+      runner:
+        description: 'The runner to run on. Uses the default runner by default.'
+        required: false
+        default: ''
+      automation-build:
+        description: 'Whether a build for automation should be generated'
+        required: true
+        default: 'false'
+  push:
+    branches:
+      - develop
+      - release-candidate
+      - release-candidate-* # e.g. release-candidate-21.1.1
+      - feature/*
+
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - closed
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inputs
+        run: |
+          echo "ref $GITHUB_REF"
+          echo "branch ${{ github.event.inputs.branch }}"
+          echo "runner ${{ github.event.inputs.runner }}"
+          echo "automation-build ${{ github.event.inputs.automation-build }}"
