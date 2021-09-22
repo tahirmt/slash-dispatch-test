@@ -12,9 +12,6 @@ jobs:
           pr_ref="${{ github.event.client_payload.pull_request.head.ref }}"
           branch_arg="${{ github.event.client_payload.slash_command.args.named.branch }}"
           branch="${branch_arg:-$pr_ref}"
-          echo "pr ref is $pr_ref"
-          echo "branch arg is $branch_arg"
-          echo "branch is $branch"
           echo "::set-output name=branch::$branch"
 
       - name: Help
@@ -38,8 +35,8 @@ jobs:
         with:
           workflow: Device Build
           token: ${{ secrets.BOT_TOKEN }}
-          inputs: '{"branch":"${{ steps.setup-branch.branch }}"}'
-          ref: ${{ steps.setup-branch.branch }}
+          inputs: '{"branch":"${{ steps.setup-branch.outputs.branch }}"}'
+          ref: ${{ steps.setup-branch.outputs.branch }}
 
       - name: Automation Build
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'automation' }}
@@ -47,8 +44,8 @@ jobs:
         with:
           workflow: CI
           token: ${{ secrets.BOT_TOKEN }}
-          inputs: '{"branch":"${{ steps.setup-branch.branch }}","automation-build":"true"}'
-          ref: ${{ steps.setup-branch.branch }}
+          inputs: '{"branch":"${{ steps.setup-branch.outputs.branch }}","automation-build":"true"}'
+          ref: ${{ steps.setup-branch.outputs.branch }}
 
       - name: Add reaction
         uses: peter-evans/create-or-update-comment@v1
