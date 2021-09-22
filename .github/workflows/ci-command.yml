@@ -11,7 +11,7 @@ jobs:
         run: echo "::set-output name=supported::${{ contains('help device automation', github.event.client_payload.slash_command.args.unnamed.arg1) }}"
 
       - name: Help
-        if: ${{ steps.check-command.outputs.supported == 'true' }}
+        if: ${{ steps.check-command.outputs.supported == 'false' }}
         uses: peter-evans/create-or-update-comment@v1
         with:
           token: ${{ secrets.BOT_TOKEN }}
