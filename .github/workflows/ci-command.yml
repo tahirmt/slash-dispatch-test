@@ -8,10 +8,7 @@ jobs:
     steps:
       - name: Check subcommand
         id: check-command
-        run: |
-          supported_commands="help device automation"
-          argument="${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}"
-          echo "::set-output name=supported::${{ contains($suppored_commands, $argument) }}"
+        run: echo "::set-output name=supported::${{ contains('help device automation', github.event.client_payload.slash_command.args.unnamed.arg1) }}"
 
       - name: Help
         if: ${{ steps.check-command.outputs.supported == 'true' }}
