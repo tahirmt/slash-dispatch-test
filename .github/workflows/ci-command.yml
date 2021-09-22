@@ -6,6 +6,14 @@ jobs:
   rebase:
     runs-on: ubuntu-latest
     steps:
+      - name: Setup branch
+        id: setup-branch
+        run: |
+          pr_ref="${{ github.event.client_payload.pull_request.head.ref }}"
+          branch_arg="${{ github.event.client_payload.slash_command.args.named.branch }}"
+          branch="${branch_arg:-$pr_ref}"
+          echo "::set-output name=branch::$branch"
+
       - name: Help
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'help' }}
         uses: peter-evans/create-or-update-comment@v1
@@ -16,17 +24,19 @@ jobs:
           body: |
             > Use the command as follows
             > /ci help # prints this help
-            > /ci device-build # creates a device build for the current branch
+            > /ci device # creates a device build for the current branch
+            > • you can optionally pass in branch /ci device branch=some-branch
             > /ci automation # creates an automation build for the current branch
+            > • you can optionally pass in branch /ci device branch=some-branch
 
       - name: Device Build
-        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'device-build' }}
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'device' }}
         uses: scoremedia/workflow-dispatch@v1
         with:
           workflow: Device Build
           token: ${{ secrets.BOT_TOKEN }}
-          inputs: '{"branch":"${{ github.event.client_payload.pull_request.head.ref }}"}'
-          ref: ${{ github.event.client_payload.pull_request.head.ref }}
+          inputs: '{"branch":"${{ steps.setup-branch.branch }}"}'
+          ref: ${{ steps.setup-branch.branch }}
 
       - name: Automation Build
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'automation' }}
@@ -34,8 +44,8 @@ jobs:
         with:
           workflow: CI
           token: ${{ secrets.BOT_TOKEN }}
-          inputs: '{"branch":"${{ github.event.client_payload.pull_request.head.ref }}","automation-build":"true"}'
-          ref: ${{ github.event.client_payload.pull_request.head.ref }}
+          inputs: '{"branch":"${{ steps.setup-branch.branch }}","automation-build":"true"}'
+          ref: ${{ steps.setup-branch.branch }}
 
       - name: Add reaction
         uses: peter-evans/create-or-update-comment@v1
