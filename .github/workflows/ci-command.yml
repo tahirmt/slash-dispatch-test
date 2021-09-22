@@ -18,7 +18,7 @@ jobs:
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
           comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
           body: |
-            > The command ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }} is not supported
+            > The command `${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}` is not supported
             > To check the commands use /ci help
 
       - name: Confirm subcommand
