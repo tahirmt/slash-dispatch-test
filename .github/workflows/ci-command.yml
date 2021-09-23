@@ -8,11 +8,11 @@ jobs:
     steps:
       - name: Check subcommand
         id: check-command
-        run: echo "::set-output name=supported::${{ contains('help device automation', github.event.client_payload.slash_command.args.unnamed.arg1) }}"
+        run: echo "::set-output name=supported::${{ contains('help device automation update-schema', github.event.client_payload.slash_command.args.unnamed.arg1) }}"
 
       - name: Help
         if: ${{ steps.check-command.outputs.supported == 'false' }}
-        uses: peter-evans/create-or-update-comment@v1
+        uses: scoremedia/create-or-update-comment@v1
         with:
           token: ${{ secrets.BOT_TOKEN }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
@@ -35,7 +35,7 @@ jobs:
 
       - name: Help
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'help' }}
-        uses: peter-evans/create-or-update-comment@v1
+        uses: scoremedia/create-or-update-comment@v1
         with:
           token: ${{ secrets.BOT_TOKEN }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
@@ -47,6 +47,8 @@ jobs:
             > • you can optionally pass in branch /ci device branch=some-branch
             > /ci automation # creates an automation build for the current branch
             > • you can optionally pass in branch /ci device branch=some-branch
+            > /ci update-schema <schema-name> # calls update schema for the provided endpoint
+            > see [details](https://github.com/scoremedia/thescore-iphone/actions/workflows/update-schema.yml)
 
       - name: Device Build
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'device' }}
@@ -66,8 +68,15 @@ jobs:
           inputs: '{"branch":"${{ steps.setup-branch.outputs.branch }}","automation-build":"true"}'
           ref: ${{ steps.setup-branch.outputs.branch }}
 
+      - name: Schema update
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'update-schema' }}
+        with:
+          workflow: Update Schemas
+          token: ${{ secrets.BOT_TOKEN }}
+          inputs: '{"schemaName":"${{ github.event.client_payload.slash_command.args.unnamed.arg2 }}"}'
+
       - name: Add reaction
-        uses: peter-evans/create-or-update-comment@v1
+        uses: scoremedia/create-or-update-comment@v1
         with:
           token: ${{ secrets.BOT_TOKEN }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
