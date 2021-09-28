@@ -21,6 +21,7 @@ on:
       - release-candidate
       - release-candidate-* # e.g. release-candidate-21.1.1
       - feature/*
+      - main
 
   pull_request:
     types:

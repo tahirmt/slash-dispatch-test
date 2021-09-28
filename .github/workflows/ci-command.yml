@@ -3,12 +3,12 @@ on:
   repository_dispatch:
     types: [ci-command]
 jobs:
-  rebase:
+  execute-command:
     runs-on: ubuntu-latest
     steps:
       - name: Check subcommand
         id: check-command
-        run: echo "::set-output name=supported::${{ contains('help device automation update-schema', github.event.client_payload.slash_command.args.unnamed.arg1) }}"
+        run: echo "::set-output name=supported::${{ contains('help device automation update-schema re-run test', github.event.client_payload.slash_command.args.unnamed.arg1) }}"
 
       - name: Help
         if: ${{ steps.check-command.outputs.supported == 'false' }}
@@ -49,6 +49,8 @@ jobs:
             > • you can optionally pass in branch /ci device branch=some-branch
             > /ci update-schema <schema-name> # calls update schema for the provided endpoint
             > see [details](https://github.com/scoremedia/thescore-iphone/actions/workflows/update-schema.yml)
+            > /ci re-run # re-runs failed jobs
+            > optionally pass all argument to re-run all jobs
 
       - name: Device Build
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'device' }}
@@ -75,6 +77,45 @@ jobs:
           workflow: Update Schemas
           token: ${{ secrets.BOT_TOKEN }}
           inputs: '{"schemaName":"${{ github.event.client_payload.slash_command.args.unnamed.arg2 }}"}'
+
+      - name: Test
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'test' }}
+        uses: scoremedia/workflow-dispatch@v1
+        with:
+          workflow: CI
+          token: ${{ secrets.BOT_TOKEN }}
+          ref: ${{ steps.setup-branch.outputs.branch }}
+
+      - name: Re-Run
+        if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 're-run' }}
+        uses: actions/github-script@v4
+        with:
+          script: |
+            try {
+              const check_suites = await github.checks.listSuitesForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: context.payload.client_payload.pull_request.head.ref,
+                per_page: 100
+              })
+
+              console.log(context.payload.client_payload.slash_command.args.unnamed.arg2)
+              console.log(check_suites.data.total_count)
+
+              check_suites.data.check_suites.forEach(suite => {
+                should_re_run = context.payload.client_payload.slash_command.args.unnamed.arg2 == "all" 
+                    || (suite.status == "completed" && ["cancelled", "failure", "timed_out"].includes(suite.conclusion))
+                if (should_re_run) {
+                  github.checks.rerequestSuite({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    check_suite_id: suite.id,
+                  })
+                }
+              })
+            } catch (error) {
+              core.setFailed(error.message);
+            }
 
       - name: Add reaction
         uses: scoremedia/create-or-update-comment@v1
