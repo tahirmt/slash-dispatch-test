@@ -51,6 +51,8 @@ jobs:
             > see [details](https://github.com/scoremedia/thescore-iphone/actions/workflows/update-schema.yml)
             > /ci re-run # re-runs failed jobs
             > optionally pass all argument to re-run all jobs
+            > /ci test # runs the CI job to test the current ref
+            > • you can optionally pass in branch /ci test branch=some-branch
 
       - name: Device Build
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 'device' }}
@@ -85,6 +87,7 @@ jobs:
           workflow: CI
           token: ${{ secrets.BOT_TOKEN }}
           ref: ${{ steps.setup-branch.outputs.branch }}
+          inputs: '{"comment-id":"${{ github.event.client_payload.github.payload.comment.id }}"}'
 
       - name: Re-Run
         if: ${{ github.event.client_payload.slash_command.args.unnamed.arg1 == 're-run' }}

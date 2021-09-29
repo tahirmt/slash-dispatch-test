@@ -15,6 +15,9 @@ on:
         description: 'Whether a build for automation should be generated'
         required: true
         default: 'false'
+      comment-id:
+        description: 'Comment id to update after the job starts. Only used by ci-command'
+        required: false
   push:
     branches:
       - develop
@@ -34,6 +37,15 @@ jobs:
   main:
     runs-on: ubuntu-latest
     steps:
+      - name: Post Comment
+        if: ${{ github.event.inputs.comment-id }}
+        uses: scoremedia/create-or-update-comment@v1
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          comment-id: ${{ github.event.inputs.comment-id }}
+          body: |
+            > [Job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_number }})
+
       - name: Inputs
         run: |
           echo "ref $GITHUB_REF"
