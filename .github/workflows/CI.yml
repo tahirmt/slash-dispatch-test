@@ -44,7 +44,7 @@ jobs:
           token: ${{ secrets.BOT_TOKEN }}
           comment-id: ${{ github.event.inputs.comment-id }}
           body: |
-            > [Job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_number }})
+            > [Job](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
       - name: Inputs
         run: |
